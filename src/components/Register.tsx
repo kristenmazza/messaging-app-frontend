@@ -16,6 +16,7 @@ import SideImage from './SideImage';
 import styles from './Register.module.css';
 import { InfoRounded } from '@mui/icons-material';
 import axios from 'axios';
+import axiosApi from '../api/axios';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Copyright(props: any) {
@@ -63,6 +64,8 @@ export default function SignUp() {
   const [errMsg, setErrMsg] = useState('');
   const [success, setSuccess] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (userRef.current) {
       userRef.current.focus();
@@ -94,6 +97,7 @@ export default function SignUp() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    setLoading(true);
     const v1 = DISPLAY_NAME_REGEX.test(displayName);
     const v2 = EMAIL_REGEX.test(email);
     const v3 = PWD_REGEX.test(password);
@@ -103,21 +107,14 @@ export default function SignUp() {
       return;
     }
 
-    console.log({
-      displayName: displayName,
-      password: password,
-      email: email,
-      c_password: matchPassword,
-    });
-
     try {
-      const response = await axios.post(
-        import.meta.env.VITE_BACKEND_URL + '/register',
+      await axiosApi.post(
+        '/register',
         {
           displayName: displayName,
-          password: encodeURIComponent(password),
+          password: password,
           email: email,
-          c_password: encodeURIComponent(matchPassword),
+          c_password: matchPassword,
         },
         {
           headers: { 'Content-Type': 'application/json' },
@@ -125,17 +122,23 @@ export default function SignUp() {
         },
       );
 
-      console.log(response);
       setSuccess(true);
       setDisplayName('');
       setPassword('');
       setMatchPassword('');
       setEmail('');
     } catch (err) {
-      console.error('Error:', err);
-
-      const message = err instanceof Error ? err.message : String(err);
-      setErrMsg(message);
+      if (axios.isAxiosError(err)) {
+        if (!err?.response) {
+          setErrMsg('No server response');
+        } else {
+          setErrMsg(err.response.data.errors[0].msg);
+        }
+      } else {
+        setErrMsg('Registration failed');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -305,6 +308,15 @@ export default function SignUp() {
                       />
                     </Grid>
                   </Grid>
+
+                  <p
+                    ref={errRef}
+                    className={errMsg ? styles.errMsg : styles.offscreen}
+                    aria-live='assertive'
+                  >
+                    {errMsg}
+                  </p>
+
                   <Button
                     disabled={
                       !validDisplayName ||
@@ -319,16 +331,8 @@ export default function SignUp() {
                     variant='contained'
                     sx={{ mt: 3, mb: 2 }}
                   >
-                    Sign Up
+                    {loading ? 'Signing Up...' : 'Sign Up'}
                   </Button>
-
-                  <p
-                    ref={errRef}
-                    className={errMsg ? styles.errMsg : styles.offscreen}
-                    aria-live='assertive'
-                  >
-                    {errMsg}
-                  </p>
 
                   <Grid container justifyContent='flex-end'>
                     <Grid item>
