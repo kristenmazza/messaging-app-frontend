@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,6 +13,9 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import SideImage from './SideImage';
+import styles from './Register.module.css';
+import axiosApi from '../api/axios';
+import axios from 'axios';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Copyright(props: any) {
@@ -33,13 +37,57 @@ function Copyright(props: any) {
 }
 
 export default function Login() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const errRef = useRef<HTMLInputElement>(null);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errMsg, setErrMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setErrMsg('');
+  }, [email, password]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    setLoading(true);
+
+    try {
+      const response = await axiosApi.post(
+        '/auth',
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            withCredentials: true,
+          },
+        },
+      );
+      console.log(response);
+      setEmail('');
+      setPassword('');
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.log(err);
+
+        if (!err?.response) {
+          setErrMsg('No server response');
+        } else {
+          console.log(err.response);
+
+          setErrMsg(
+            'Login failed: ' + err.response.data.message || err.message,
+          );
+        }
+      } else {
+        setErrMsg('Login failed');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -76,6 +124,8 @@ export default function Login() {
               name='email'
               autoComplete='email'
               autoFocus
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
             />
             <TextField
               margin='normal'
@@ -85,26 +135,33 @@ export default function Login() {
               label='Password'
               type='password'
               id='password'
-              autoComplete='current-password'
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
             />
             <FormControlLabel
               control={<Checkbox value='remember' color='primary' />}
               label='Remember me'
             />
+
+            <p
+              ref={errRef}
+              className={errMsg ? styles.errMsg : styles.offscreen}
+              aria-live='assertive'
+            >
+              {errMsg}
+            </p>
+
             <Button
+              disabled={!email || !password}
               type='submit'
               fullWidth
               variant='contained'
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
             <Grid container>
-              <Grid item xs>
-                <Link href='#' variant='body2'>
-                  Forgot password?
-                </Link>
-              </Grid>
+              <Grid item xs></Grid>
               <Grid item>
                 <Link href='/register' variant='body2'>
                   {"Don't have an account? Sign Up"}
