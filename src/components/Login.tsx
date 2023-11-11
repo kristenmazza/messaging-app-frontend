@@ -84,7 +84,7 @@ export default function Login() {
       setEmail('');
       setPassword('');
       const accessToken = response?.data?.accessToken;
-      setAuth({ email, password, accessToken });
+      setAuth({ email, accessToken });
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
