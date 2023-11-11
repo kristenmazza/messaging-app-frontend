@@ -16,6 +16,8 @@ import SideImage from './SideImage';
 import styles from './Register.module.css';
 import axiosApi from '../api/axios';
 import axios from 'axios';
+import { useNavigate, useLocation } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Copyright(props: any) {
@@ -37,6 +39,11 @@ function Copyright(props: any) {
 }
 
 export default function Login() {
+  const { setAuth } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
+
   const errRef = useRef<HTMLInputElement>(null);
 
   const [email, setEmail] = useState('');
@@ -62,28 +69,29 @@ export default function Login() {
         {
           headers: {
             'Content-Type': 'application/json',
-            withCredentials: true,
           },
+          withCredentials: true,
         },
       );
-      console.log(response);
       setEmail('');
       setPassword('');
+      const accessToken = response?.data?.accessToken;
+      setAuth({ email, password, accessToken });
+      navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        console.log(err);
-
         if (!err?.response) {
           setErrMsg('No server response');
         } else {
-          console.log(err.response);
-
           setErrMsg(
             'Login failed: ' + err.response.data.message || err.message,
           );
         }
       } else {
         setErrMsg('Login failed');
+      }
+      if (errRef.current) {
+        errRef.current.focus();
       }
     } finally {
       setLoading(false);
