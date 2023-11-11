@@ -39,7 +39,7 @@ function Copyright(props: any) {
 }
 
 export default function Login() {
-  const { setAuth } = useAuth();
+  const { setAuth, persist, setPersist } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
@@ -54,6 +54,14 @@ export default function Login() {
   useEffect(() => {
     setErrMsg('');
   }, [email, password]);
+
+  const togglePersist = () => {
+    setPersist((prev) => !prev);
+  };
+
+  useEffect(() => {
+    localStorage.setItem('persist', JSON.stringify(persist));
+  }, [persist]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -149,6 +157,9 @@ export default function Login() {
             <FormControlLabel
               control={<Checkbox value='remember' color='primary' />}
               label='Remember me'
+              id='persist'
+              onChange={togglePersist}
+              checked={persist}
             />
 
             <p
