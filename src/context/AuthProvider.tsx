@@ -17,6 +17,7 @@ interface IAuthContextProps {
     password?: string;
     accessToken?: string;
     displayName?: string;
+    userId?: string;
   };
   setAuth: Dispatch<
     SetStateAction<{
@@ -24,6 +25,7 @@ interface IAuthContextProps {
       password?: string;
       accessToken?: string;
       displayName?: string;
+      userId?: string;
     }>
   >;
   persist: boolean | undefined;
@@ -48,12 +50,14 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   useEffect(() => {
     const storedDisplayName = localStorage.getItem('displayName');
     const storedEmail = localStorage.getItem('email');
+    const storedUserId = localStorage.getItem('userId');
 
-    if (storedDisplayName || storedEmail) {
+    if (storedDisplayName || storedEmail || storedUserId) {
       setAuth((prev) => ({
         ...prev,
         displayName: storedDisplayName,
         email: storedEmail,
+        userId: storedUserId,
       }));
     }
   }, []);

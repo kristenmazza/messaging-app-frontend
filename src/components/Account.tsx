@@ -2,11 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import useLogout from '../hooks/useLogout';
 import useAuth from '../hooks/useAuth';
 import { Box, Button } from '@mui/material';
-import { useState, FormEvent, useRef } from 'react';
+import { useState, FormEvent, useRef, useEffect } from 'react';
 import styles from './Account.module.css';
 import axiosApi from '../api/axios';
 import axios from 'axios';
 import SuccessSnackbar from './SuccessSnackbar';
+import AvatarDisplay from './AvatarDisplay';
 
 export default function Account() {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ export default function Account() {
   const errRef = useRef<HTMLInputElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [loadingNameChange, setLoadingNameChange] = useState(false);
+  const [avatar, setAvatar] = useState('');
+  const [updatedDisplayName, setUpdatedDisplayName] = useState(
+    auth.displayName,
+  );
 
   const handleOpenSnackbar = () => {
     setOpenSnackbar(true);
@@ -35,9 +40,8 @@ export default function Account() {
     } else {
       try {
         await axiosApi.put(
-          '/users',
+          `/users/${auth.userId}`,
           {
-            email: auth.email,
             displayName: displayName,
           },
           {
@@ -48,7 +52,9 @@ export default function Account() {
             withCredentials: true,
           },
         );
+
         localStorage.setItem('displayName', displayName);
+        setUpdatedDisplayName(displayName);
         setErrMsg('');
         handleOpenSnackbar();
       } catch (err) {
@@ -57,7 +63,9 @@ export default function Account() {
             setErrMsg('No server response');
           } else {
             setErrMsg(
-              'Update failed: ' + err.response.data.message || err.message,
+              'Update failed: ' + err.response.data.message ||
+                err.message ||
+                err.response.data,
             );
           }
         } else {
@@ -72,11 +80,43 @@ export default function Account() {
     }
   };
 
+  useEffect(() => {
+    const getAvatar = async () => {
+      try {
+        const response = await axiosApi.get(`/users/${auth.userId}`, {
+          headers: {
+            Authorization: `Bearer ${auth.accessToken}`,
+          },
+          withCredentials: true,
+        });
+
+        setAvatar(response.data.avatar);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          if (!err?.response) {
+            console.error('No server response');
+          } else {
+            console.error(err.response.data.message || err.message);
+          }
+        }
+      }
+    };
+
+    getAvatar();
+  }, [auth.userId, auth.accessToken]);
+
   return (
     <>
       <div className={styles.accountSection}>
-        <h1>Account</h1>
-        <Box className={styles.form}>
+        <Box className={styles.account}>
+          <h1 className={styles.alignLeft}>Account Details</h1>
+          <div className={styles.userDetails}>
+            <AvatarDisplay avatar={avatar as string} />
+            <div className={styles.userDetailsText}>
+              <p className={styles.bold}>{updatedDisplayName}</p>
+              <p>{auth.email}</p>
+            </div>
+          </div>
           <form
             method='post'
             encType='multipart/form-data'
@@ -123,15 +163,16 @@ export default function Account() {
               {errMsg}
             </p>
           </form>
-        </Box>
 
-        <Button
-          sx={{ margin: '2rem 0' }}
-          onClick={() => signOut()}
-          variant='text'
-        >
-          Sign Out
-        </Button>
+          <Button
+            className={styles.alignLeft}
+            sx={{ margin: '2rem 0' }}
+            onClick={() => signOut()}
+            variant='text'
+          >
+            Sign Out
+          </Button>
+        </Box>
       </div>
       <SuccessSnackbar
         openSnackbar={openSnackbar}
