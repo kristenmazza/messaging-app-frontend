@@ -1,18 +1,13 @@
 import { useEffect } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { useNavigate, useLocation } from 'react-router-dom';
-import useLogout from '../hooks/useLogout';
+import useAuth from '../hooks/useAuth';
 
 export default function Home() {
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
   const location = useLocation();
-  const logout = useLogout();
-
-  const signOut = async () => {
-    await logout();
-    navigate('/login');
-  };
+  const { auth } = useAuth();
 
   useEffect(() => {
     const getChannels = async () => {
@@ -28,10 +23,7 @@ export default function Home() {
     getChannels();
   });
 
-  return (
-    <>
-      <p>Home</p>
-      <button onClick={() => signOut()}>Sign Out</button>
-    </>
-  );
+  console.log(auth);
+
+  return <>Home</>;
 }

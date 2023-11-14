@@ -81,10 +81,17 @@ export default function Login() {
           withCredentials: true,
         },
       );
+
+      const accessToken = response?.data?.accessToken;
+      const displayName = response?.data?.displayName;
+
+      localStorage.setItem('displayName', displayName);
+      localStorage.setItem('email', email);
+
+      setAuth({ email, accessToken, displayName });
+
       setEmail('');
       setPassword('');
-      const accessToken = response?.data?.accessToken;
-      setAuth({ email, accessToken });
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
