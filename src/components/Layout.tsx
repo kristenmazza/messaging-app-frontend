@@ -15,7 +15,7 @@ export default function Layout() {
         <Outlet />
       ) : (
         <Box sx={{ pb: 7 }} ref={ref} className={styles.background}>
-          <Container maxWidth='md' className={styles.layoutWrapper}>
+          <Container maxWidth='sm' className={styles.layoutWrapper}>
             <CssBaseline />
             <Outlet />
             <BottomNav />

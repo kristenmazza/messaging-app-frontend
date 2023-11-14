@@ -24,7 +24,11 @@ export default function FixedBottomNavigation() {
         }}
       >
         <BottomNavigationAction label='Messages' icon={<ForumIcon />} />
-        <BottomNavigationAction label='Users' icon={<PeopleIcon />} />
+        <BottomNavigationAction
+          label='Users'
+          onClick={() => navigate('/users')}
+          icon={<PeopleIcon />}
+        />
         <BottomNavigationAction
           label='Account'
           onClick={() => navigate('/account')}
