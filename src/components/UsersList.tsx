@@ -4,6 +4,7 @@ import axiosApi from '../api/axios';
 import styles from './UsersList.module.css';
 import List from '@mui/material/List';
 import UserItem from './UserItem';
+import { Box, CircularProgress } from '@mui/material';
 
 type UserType = {
   _id: string;
@@ -15,6 +16,7 @@ type UserType = {
 export default function UsersList() {
   const { auth } = useAuth();
   const [users, setUsers] = useState<UserType[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getUsers = async () => {
@@ -26,11 +28,11 @@ export default function UsersList() {
           },
           withCredentials: true,
         });
-
-        console.log(response.data);
         setUsers(response.data);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -40,6 +42,7 @@ export default function UsersList() {
   const renderedUsers = users.map((user) => (
     <UserItem
       key={user._id}
+      dataId={user._id}
       avatar={user.avatar}
       displayName={user.displayName}
     />
@@ -48,10 +51,16 @@ export default function UsersList() {
   return (
     <>
       <div className={styles.usersList}>
-        <List className={styles.list}>
-          <h1>Users</h1>
-          {renderedUsers}
-        </List>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <List className={styles.list}>
+            <h1>Users</h1>
+            {renderedUsers}
+          </List>
+        )}
       </div>
     </>
   );

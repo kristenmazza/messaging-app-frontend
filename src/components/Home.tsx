@@ -1,29 +1,26 @@
 import { useEffect } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import { useNavigate, useLocation } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+import { useMessengerContext } from '../context/useMessengerContext';
 
 export default function Home() {
   const axiosPrivate = useAxiosPrivate();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { auth } = useAuth();
+  const { currentChannel } = useMessengerContext();
 
   useEffect(() => {
-    const getChannels = async () => {
-      try {
-        const response = await axiosPrivate.get('/channels');
-        console.log(response);
-      } catch (err) {
-        console.error(err);
-        navigate('/login', { state: { from: location }, replace: true });
-      }
-    };
-
-    getChannels();
+    console.log(currentChannel);
+    if (currentChannel) {
+      const getConversation = async () => {
+        try {
+          const response = await axiosPrivate.get(
+            `/channels/${currentChannel._id}/messages`,
+          );
+          console.log(response);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      getConversation();
+    }
   });
-
-  console.log(auth);
-
   return <>Home</>;
 }
