@@ -14,11 +14,6 @@
   }
 }
 
-.listItemBackground {
-  background-color: rgba(215, 227, 242, 1);
-  border-radius: 0.3rem;
-}
-
 .listItemBackground:hover {
   background-color: rgb(220, 232, 246);
   border-radius: 0.3rem;
