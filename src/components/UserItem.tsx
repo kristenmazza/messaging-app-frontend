@@ -34,7 +34,7 @@ export default function UserItem({
   dataId: string;
 }) {
   const { auth } = useAuth();
-  const { setCurrentChannel } = useMessengerContext();
+  const { setCurrentChannel, setIsChannelOpen } = useMessengerContext();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -111,6 +111,7 @@ export default function UserItem({
       await createChannel(element);
     }
 
+    setIsChannelOpen(true);
     navigate('/', { state: { from: location }, replace: true });
   };
 

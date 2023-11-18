@@ -1,0 +1,22 @@
+.conversationContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 415px;
+    gap: 1rem;
+    padding-top: 0px;
+  }
+}
+
+.listItemBackground:hover {
+  background-color: rgb(220, 232, 246);
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
