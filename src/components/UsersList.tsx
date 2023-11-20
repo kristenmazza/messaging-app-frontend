@@ -39,7 +39,9 @@ export default function UsersList() {
     getUsers();
   }, [auth.accessToken]);
 
-  const renderedUsers = users.map((user) => (
+  const filteredUsers = users.filter((user) => user._id !== auth.userId);
+
+  const renderedUsers = filteredUsers.map((user) => (
     <UserItem
       key={user._id}
       dataId={user._id}
