@@ -84,7 +84,6 @@ export default function Login() {
 
       const accessToken = response?.data?.accessToken;
       const displayName = response?.data?.displayName;
-      console.log(response.data);
       const userId = response?.data?.id;
 
       localStorage.setItem('displayName', displayName);
