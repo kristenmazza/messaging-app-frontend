@@ -16,6 +16,16 @@ type ConversationType = {
   timestamp: string;
 };
 
+type MessageType = {
+  _id: string;
+  text: string;
+  user: {
+    displayName: string;
+    avatar: string;
+    _id: string;
+  };
+};
+
 export interface ContextProps {
   isChannelOpen: boolean;
   setIsChannelOpen: Dispatch<SetStateAction<boolean>>;
@@ -25,4 +35,6 @@ export interface ContextProps {
   setConversations: Dispatch<SetStateAction<ConversationType[] | null>>;
   otherName: string;
   setOtherName: Dispatch<SetStateAction<string>>;
+  conversation: MessageType[] | null;
+  setConversation: Dispatch<SetStateAction<MessageType[] | null>>;
 }

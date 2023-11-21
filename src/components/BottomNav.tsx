@@ -6,12 +6,14 @@ import Paper from '@mui/material/Paper';
 import PeopleIcon from '@mui/icons-material/People';
 import ForumIcon from '@mui/icons-material/Forum';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useMessengerContext } from '../context/useMessengerContext';
 
 export default function FixedBottomNavigation() {
   const [value, setValue] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { setIsChannelOpen, setConversation, setCurrentChannelId } =
+    useMessengerContext();
   useEffect(() => {
     const tabRoute = {
       '/': 0,
@@ -23,6 +25,13 @@ export default function FixedBottomNavigation() {
       tabRoute[location.pathname as keyof typeof tabRoute];
     setValue(currentLocationTab);
   }, [location.pathname]);
+
+  const handleMessagesClick = () => {
+    setIsChannelOpen(false);
+    setConversation(null);
+    setCurrentChannelId('');
+    navigate('/');
+  };
 
   return (
     <Paper
@@ -38,7 +47,7 @@ export default function FixedBottomNavigation() {
       >
         <BottomNavigationAction
           label='Messages'
-          onClick={() => navigate('/')}
+          onClick={handleMessagesClick}
           icon={<ForumIcon />}
         />
         <BottomNavigationAction

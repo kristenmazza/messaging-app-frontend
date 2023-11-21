@@ -6,16 +6,6 @@ import { Divider, List } from '@mui/material';
 import styles from './Conversations.module.css';
 import Chat from './Chat';
 
-type MessageType = {
-  _id: string;
-  text: string;
-  user: {
-    displayName: string;
-    avatar: string;
-    _id: string;
-  };
-};
-
 type ParticipantType = {
   _id: string;
   displayName: string;
@@ -34,14 +24,17 @@ type ConversationType = {
 
 export default function Conversations() {
   const axiosPrivate = useAxiosPrivate();
-  const { currentChannelId, isChannelOpen, conversations, setConversations } =
-    useMessengerContext();
-  const [conversation, setConversation] = useState<MessageType[] | null>(null);
+  const {
+    currentChannelId,
+    isChannelOpen,
+    conversations,
+    setConversations,
+    setConversation,
+  } = useMessengerContext();
+  const [conversationLoading, setConversationLoading] = useState(false);
 
   const renderConversation = () => {
-    return (
-      <Chat conversation={conversation} setConversation={setConversation} />
-    );
+    return <Chat conversationLoading={conversationLoading} />;
   };
 
   const renderConversations = () => {
@@ -79,27 +72,33 @@ export default function Conversations() {
     if (currentChannelId) {
       const getConversation = async () => {
         try {
+          setConversationLoading(true);
           const response = await axiosPrivate.get(
             `/channels/${currentChannelId}/messages`,
           );
           setConversation(response.data);
         } catch (err) {
           console.error(err);
+        } finally {
+          setConversationLoading(false);
         }
       };
       getConversation();
-    } else {
-      const getConversations = async () => {
-        try {
-          const response = await axiosPrivate.get('/channels');
-          setConversations(response.data);
-        } catch (err) {
-          console.error(err);
-        }
-      };
-      getConversations();
     }
-  }, [currentChannelId, axiosPrivate, setConversations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChannelId]);
+
+  useEffect(() => {
+    const getConversations = async () => {
+      try {
+        const response = await axiosPrivate.get('/channels');
+        setConversations(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    getConversations();
+  });
 
   return (
     <>

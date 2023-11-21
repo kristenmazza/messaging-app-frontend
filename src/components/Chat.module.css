@@ -7,9 +7,20 @@
   .chatHeading {
     align-self: center;
     width: 100%;
-    max-width: 415px;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    padding: 10px;
+    border-bottom: 1px solid rgb(196, 201, 208);
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+
+    & h1 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    & svg {
+      font-size: 1rem;
+    }
   }
 
   .chat {
@@ -19,12 +30,11 @@
     flex: 1;
 
     .messagesContainer {
+      padding-top: 1rem;
       display: flex;
-      max-height: calc(100vh - 285px);
+      max-height: calc(100vh - 240px);
       width: 100%;
-      max-width: 500px;
       gap: 1rem;
-      padding-top: 0px;
       overflow-y: auto;
       flex-direction: column-reverse;
     }
@@ -105,4 +115,17 @@
   align-items: flex-start;
   margin-bottom: 10px;
   gap: 1rem;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.messageIndicator {
+  font-size: 1rem;
+  color: #51525a;
+  align-self: center;
 }

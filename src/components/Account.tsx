@@ -28,10 +28,13 @@ export default function Account() {
     auth.displayName,
   );
 
-  const { setIsChannelOpen } = useMessengerContext();
+  const { setIsChannelOpen, setConversation, setCurrentChannelId } =
+    useMessengerContext();
 
   useEffect(() => {
     setIsChannelOpen(false);
+    setConversation(null);
+    setCurrentChannelId('');
   });
 
   const handleOpenSnackbar = () => {

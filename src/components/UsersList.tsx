@@ -19,10 +19,13 @@ export default function UsersList() {
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { setIsChannelOpen } = useMessengerContext();
+  const { setIsChannelOpen, setConversation, setCurrentChannelId } =
+    useMessengerContext();
 
   useEffect(() => {
     setIsChannelOpen(false);
+    setConversation(null);
+    setCurrentChannelId('');
   });
 
   useEffect(() => {

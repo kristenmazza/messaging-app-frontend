@@ -1,11 +1,19 @@
-import { Avatar, Box, IconButton, InputAdornment } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
 import styles from './Chat.module.css';
 import useAuth from '../hooks/useAuth';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
-import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { axiosPrivate } from '../api/axios';
 import { useMessengerContext } from '../context/useMessengerContext';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 type MessageType = {
   _id: string;
@@ -18,15 +26,23 @@ type MessageType = {
 };
 
 export default function Chat({
-  conversation,
-  setConversation,
+  conversationLoading,
 }: {
-  conversation: MessageType[] | null;
-  setConversation: Dispatch<SetStateAction<MessageType[] | null>>;
+  conversationLoading: boolean;
 }) {
   const { auth } = useAuth();
-  const { currentChannelId, otherName } = useMessengerContext();
+  const {
+    currentChannelId,
+    otherName,
+    setIsChannelOpen,
+    conversation,
+    setConversation,
+    setCurrentChannelId,
+  } = useMessengerContext();
   const [text, setText] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -53,16 +69,30 @@ export default function Chat({
     }
   };
 
+  const handleBackClick = () => {
+    setIsChannelOpen(false);
+    setConversation(null);
+    setCurrentChannelId('');
+    navigate(from, { replace: true });
+  };
+
   return (
     <div className={styles.chatContainer}>
       <div className={styles.chatHeading}>
+        <IconButton onClick={handleBackClick} aria-label='Back'>
+          <ArrowBackIosNewIcon />
+        </IconButton>
         <h1>Chat with {otherName}</h1>
-        <hr />
       </div>
-      <div className={styles.chat}>
-        <div className={styles.messagesContainer}>
-          {conversation && conversation.length > 0
-            ? conversation.map((item: MessageType) => (
+      {conversationLoading ? (
+        <div className={styles.loadingContainer}>
+          <CircularProgress />
+        </div>
+      ) : (
+        <div className={styles.chat}>
+          <div className={styles.messagesContainer}>
+            {conversation && conversation.length > 0 ? (
+              conversation.map((item: MessageType) => (
                 <div className={styles.row} key={item._id}>
                   {auth.userId === item.user._id ? (
                     <>
@@ -93,9 +123,12 @@ export default function Chat({
                   )}
                 </div>
               ))
-            : 'Send a message...'}
+            ) : (
+              <p className={styles.messageIndicator}>No messages yet</p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       <Box
         component='form'
         className={styles.formContainer}

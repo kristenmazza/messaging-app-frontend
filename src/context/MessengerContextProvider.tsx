@@ -10,6 +10,8 @@ export const MessengerContext = createContext<ContextProps>({
   setConversations: () => null,
   otherName: '',
   setOtherName: () => null,
+  conversation: null,
+  setConversation: () => null,
 });
 
 interface MessengerContextProviderProps {
@@ -32,6 +34,16 @@ type ConversationType = {
   timestamp: string;
 };
 
+type MessageType = {
+  _id: string;
+  text: string;
+  user: {
+    displayName: string;
+    avatar: string;
+    _id: string;
+  };
+};
+
 export function MessengerContextProvider({
   children,
 }: MessengerContextProviderProps) {
@@ -41,6 +53,7 @@ export function MessengerContextProvider({
     null,
   );
   const [otherName, setOtherName] = useState('');
+  const [conversation, setConversation] = useState<MessageType[] | null>(null);
 
   const value = {
     isChannelOpen,
@@ -51,6 +64,8 @@ export function MessengerContextProvider({
     setConversations,
     otherName,
     setOtherName,
+    conversation,
+    setConversation,
   };
 
   return (
