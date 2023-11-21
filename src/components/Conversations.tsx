@@ -5,6 +5,7 @@ import ConversationItem from './ConversationItem';
 import { Divider, List } from '@mui/material';
 import styles from './Conversations.module.css';
 import Chat from './Chat';
+import useAuth from '../hooks/useAuth';
 
 type ParticipantType = {
   _id: string;
@@ -32,6 +33,7 @@ export default function Conversations() {
     setConversation,
   } = useMessengerContext();
   const [conversationLoading, setConversationLoading] = useState(false);
+  const { auth } = useAuth();
 
   const renderConversation = () => {
     return <Chat conversationLoading={conversationLoading} />;
@@ -89,16 +91,22 @@ export default function Conversations() {
   }, [currentChannelId]);
 
   useEffect(() => {
-    const getConversations = async () => {
-      try {
-        const response = await axiosPrivate.get('/channels');
-        setConversations(response.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    getConversations();
-  });
+    if (!currentChannelId) {
+      console.log('hi');
+      const getConversations = async () => {
+        try {
+          const response = await axiosPrivate.get(
+            `/channels?currentUserId=${auth.userId}`,
+          );
+          setConversations(response.data);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      getConversations();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChannelId]);
 
   return (
     <>
