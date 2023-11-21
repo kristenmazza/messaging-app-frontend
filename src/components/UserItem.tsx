@@ -34,7 +34,8 @@ export default function UserItem({
   dataId: string;
 }) {
   const { auth } = useAuth();
-  const { setCurrentChannel, setIsChannelOpen } = useMessengerContext();
+  const { setCurrentChannelId, setIsChannelOpen, setOtherName } =
+    useMessengerContext();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -53,8 +54,11 @@ export default function UserItem({
         },
       });
       const transfomedResponse: ChannelType = response.data;
-      setCurrentChannel(transfomedResponse);
-      existingChannel = true;
+      const channelId = transfomedResponse._id;
+      if (channelId) {
+        setCurrentChannelId(channelId);
+        existingChannel = true;
+      }
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response) {
@@ -87,7 +91,10 @@ export default function UserItem({
       );
 
       const transfomedResponse: ChannelType = response.data;
-      setCurrentChannel(transfomedResponse);
+      const channelId = transfomedResponse._id;
+      if (channelId) {
+        setCurrentChannelId(channelId);
+      }
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response) {
@@ -112,6 +119,7 @@ export default function UserItem({
     }
 
     setIsChannelOpen(true);
+    setOtherName(displayName);
     navigate('/', { state: { from: location }, replace: true });
   };
 

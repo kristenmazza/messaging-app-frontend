@@ -30,25 +30,47 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import { Box } from '@mui/material';
+import { useMessengerContext } from '../context/useMessengerContext';
 
 export default function ConversationItem({
   latestMessage,
   participants,
   conversation,
+  dataId,
 }: {
-  key: string;
+  dataId: string;
   latestMessage?: LatestMessageType;
   participants: ParticipantType[];
   conversation: ConversationType;
 }) {
   const { auth } = useAuth();
+  const { setCurrentChannelId, setIsChannelOpen, setOtherName } =
+    useMessengerContext();
+
   const conversationPartner =
     auth.displayName === participants[0].displayName
       ? participants[1]
       : participants[0];
+
+  const handleUserClick = async (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+  ) => {
+    const element = e.currentTarget as HTMLElement;
+
+    if (element.dataset.id) {
+      setCurrentChannelId(element.dataset.id);
+      setIsChannelOpen(true);
+    }
+
+    setOtherName(conversationPartner.displayName);
+  };
+
   return (
     <ListItem
       className={styles.listItemBackground}
+      data-id={dataId}
+      data-name={conversationPartner.displayName}
+      onClick={(e) => handleUserClick(e)}
       sx={{
         minWidth: '250px',
         overflowWrap: 'break-word',
@@ -56,13 +78,14 @@ export default function ConversationItem({
       }}
       alignItems='flex-start'
     >
-      <ListItemAvatar>
+      <ListItemAvatar style={{ pointerEvents: 'none' }}>
         <Avatar
           alt={conversationPartner.displayName}
           src={conversationPartner.avatar}
         />
       </ListItemAvatar>
       <Box
+        style={{ pointerEvents: 'none' }}
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -70,6 +93,7 @@ export default function ConversationItem({
         }}
       >
         <Box
+          style={{ pointerEvents: 'none' }}
           sx={{
             display: 'flex',
             flexDirection: 'row',
@@ -79,10 +103,12 @@ export default function ConversationItem({
           }}
         >
           <ListItemText
+            style={{ pointerEvents: 'none' }}
             sx={{ flex: 1 }}
             primary={conversationPartner.displayName}
           />
           <Typography
+            style={{ pointerEvents: 'none' }}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -99,10 +125,12 @@ export default function ConversationItem({
           </Typography>
         </Box>
         <ListItemText
+          style={{ pointerEvents: 'none' }}
           secondary={
             <>
               {latestMessage ? (
                 <Typography
+                  style={{ pointerEvents: 'none' }}
                   sx={{ display: 'inline' }}
                   component='span'
                   variant='body2'
@@ -113,11 +141,12 @@ export default function ConversationItem({
                 </Typography>
               ) : (
                 <Typography
+                  style={{ pointerEvents: 'none' }}
                   sx={{
                     color: 'text.secondary',
                   }}
                   variant='body2'
-                  component='div'
+                  component='span'
                 >
                   No messages yet
                 </Typography>

@@ -5,6 +5,7 @@ import styles from './UsersList.module.css';
 import List from '@mui/material/List';
 import UserItem from './UserItem';
 import { Box, CircularProgress } from '@mui/material';
+import { useMessengerContext } from '../context/useMessengerContext';
 
 type UserType = {
   _id: string;
@@ -17,6 +18,12 @@ export default function UsersList() {
   const { auth } = useAuth();
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { setIsChannelOpen } = useMessengerContext();
+
+  useEffect(() => {
+    setIsChannelOpen(false);
+  });
 
   useEffect(() => {
     const getUsers = async () => {

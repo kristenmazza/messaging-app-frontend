@@ -1,23 +1,28 @@
 import { Dispatch, SetStateAction } from 'react';
 
-type ChannelType = {
-  _id?: string;
-  participants?: string[];
-  __v?: number;
-  timestamp?: string;
-  latestMessage?: {
-    _id?: string;
-    user?: string;
-    channel?: string;
-    text?: string;
-    timestamp?: string;
-    __v?: number;
+type ParticipantType = {
+  _id: string;
+  displayName: string;
+  avatar: string;
+};
+
+type ConversationType = {
+  _id: string;
+  latestMessage: {
+    text: string;
+    timestamp: string;
   };
+  participants: ParticipantType[];
+  timestamp: string;
 };
 
 export interface ContextProps {
-  currentChannel: ChannelType | null;
-  setCurrentChannel: Dispatch<SetStateAction<ChannelType | null>>;
   isChannelOpen: boolean;
   setIsChannelOpen: Dispatch<SetStateAction<boolean>>;
+  currentChannelId: string;
+  setCurrentChannelId: Dispatch<SetStateAction<string>>;
+  conversations: ConversationType[] | null;
+  setConversations: Dispatch<SetStateAction<ConversationType[] | null>>;
+  otherName: string;
+  setOtherName: Dispatch<SetStateAction<string>>;
 }

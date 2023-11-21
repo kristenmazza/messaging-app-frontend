@@ -1,45 +1,56 @@
 import { createContext, ReactNode, useState } from 'react';
 import { ContextProps } from './ContextProps';
 
-type ChannelType = {
-  _id?: string;
-  participants?: string[];
-  __v?: number;
-  timestamp?: string;
-  latestMessage?: {
-    _id?: string;
-    user?: string;
-    channel?: string;
-    text?: string;
-    timestamp?: string;
-    __v?: number;
-  };
-};
-
 export const MessengerContext = createContext<ContextProps>({
-  currentChannel: null,
-  setCurrentChannel: () => null,
   isChannelOpen: false,
   setIsChannelOpen: () => false,
+  currentChannelId: '',
+  setCurrentChannelId: () => null,
+  conversations: null,
+  setConversations: () => null,
+  otherName: '',
+  setOtherName: () => null,
 });
 
 interface MessengerContextProviderProps {
   children: ReactNode;
 }
 
+type ParticipantType = {
+  _id: string;
+  displayName: string;
+  avatar: string;
+};
+
+type ConversationType = {
+  _id: string;
+  latestMessage: {
+    text: string;
+    timestamp: string;
+  };
+  participants: ParticipantType[];
+  timestamp: string;
+};
+
 export function MessengerContextProvider({
   children,
 }: MessengerContextProviderProps) {
-  const [currentChannel, setCurrentChannel] = useState<ChannelType | null>(
+  const [isChannelOpen, setIsChannelOpen] = useState(false);
+  const [currentChannelId, setCurrentChannelId] = useState('');
+  const [conversations, setConversations] = useState<ConversationType[] | null>(
     null,
   );
-  const [isChannelOpen, setIsChannelOpen] = useState(false);
+  const [otherName, setOtherName] = useState('');
 
   const value = {
-    currentChannel,
-    setCurrentChannel,
     isChannelOpen,
     setIsChannelOpen,
+    currentChannelId,
+    setCurrentChannelId,
+    conversations,
+    setConversations,
+    otherName,
+    setOtherName,
   };
 
   return (

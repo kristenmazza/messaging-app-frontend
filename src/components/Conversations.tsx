@@ -4,6 +4,7 @@ import { useMessengerContext } from '../context/useMessengerContext';
 import ConversationItem from './ConversationItem';
 import { Divider, List } from '@mui/material';
 import styles from './Conversations.module.css';
+import Chat from './Chat';
 
 type MessageType = {
   _id: string;
@@ -11,6 +12,7 @@ type MessageType = {
   user: {
     displayName: string;
     avatar: string;
+    _id: string;
   };
 };
 
@@ -32,34 +34,27 @@ type ConversationType = {
 
 export default function Conversations() {
   const axiosPrivate = useAxiosPrivate();
-  const { currentChannel, isChannelOpen } = useMessengerContext();
+  const { currentChannelId, isChannelOpen, conversations, setConversations } =
+    useMessengerContext();
   const [conversation, setConversation] = useState<MessageType[] | null>(null);
-  const [conversations, setConversations] = useState<ConversationType[] | null>(
-    null,
-  );
 
   const renderConversation = () => {
-    if (conversation && conversation.length > 0) {
-      return conversation.map((item: MessageType) => (
-        <div key={item._id}>
-          <div>{item.user.displayName}</div>
-          <div>{item.text}</div>
-        </div>
-      ));
-    } else {
-      return 'Send a message...';
-    }
+    return (
+      <Chat conversation={conversation} setConversation={setConversation} />
+    );
   };
 
   const renderConversations = () => {
-    console.log(conversations);
     if (conversations) {
       return (
         <div className={styles.conversationContainer}>
+          <div className={styles.list}>
+            <h1>Messages</h1>
+          </div>
           {conversations.map((item: ConversationType, index) => (
-            <List className={styles.list}>
+            <List className={styles.list} key={item._id}>
               <ConversationItem
-                key={item._id}
+                dataId={item._id}
                 latestMessage={item.latestMessage}
                 participants={item.participants}
                 conversation={item}
@@ -75,18 +70,17 @@ export default function Conversations() {
           <List className={styles.list}>
             Select a user to start a conversation...
           </List>
-          =
         </div>
       );
     }
   };
 
   useEffect(() => {
-    if (currentChannel) {
+    if (currentChannelId) {
       const getConversation = async () => {
         try {
           const response = await axiosPrivate.get(
-            `/channels/${currentChannel._id}/messages`,
+            `/channels/${currentChannelId}/messages`,
           );
           setConversation(response.data);
         } catch (err) {
@@ -105,7 +99,8 @@ export default function Conversations() {
       };
       getConversations();
     }
-  }, [currentChannel, axiosPrivate]);
+  }, [currentChannelId, axiosPrivate, setConversations]);
+
   return (
     <>
       {isChannelOpen && renderConversation()}

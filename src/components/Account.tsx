@@ -8,6 +8,7 @@ import axiosApi from '../api/axios';
 import axios from 'axios';
 import SuccessSnackbar from './SuccessSnackbar';
 import AvatarDisplay from './AvatarDisplay';
+import { useMessengerContext } from '../context/useMessengerContext';
 
 export default function Account() {
   const navigate = useNavigate();
@@ -26,6 +27,12 @@ export default function Account() {
   const [updatedDisplayName, setUpdatedDisplayName] = useState(
     auth.displayName,
   );
+
+  const { setIsChannelOpen } = useMessengerContext();
+
+  useEffect(() => {
+    setIsChannelOpen(false);
+  });
 
   const handleOpenSnackbar = () => {
     setOpenSnackbar(true);
