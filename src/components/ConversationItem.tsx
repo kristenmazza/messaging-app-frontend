@@ -35,7 +35,6 @@ import { useMessengerContext } from '../context/useMessengerContext';
 export default function ConversationItem({
   latestMessage,
   participants,
-  conversation,
   dataId,
 }: {
   dataId: string;
@@ -120,7 +119,7 @@ export default function ConversationItem({
           >
             {latestMessage
               ? format(new Date(latestMessage.timestamp), 'MM/dd/yy') + ' '
-              : format(new Date(conversation.timestamp), 'MM/dd/yy') + ' '}
+              : ' '}
             <ChevronRightIcon sx={{ fontSize: '1rem' }} />
           </Typography>
         </Box>

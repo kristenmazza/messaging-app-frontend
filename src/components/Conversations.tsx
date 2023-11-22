@@ -78,7 +78,9 @@ export default function Conversations() {
           const response = await axiosPrivate.get(
             `/channels/${currentChannelId}/messages`,
           );
-          setConversation(response.data);
+
+          const conversationData = response.data;
+          setConversation(conversationData);
         } catch (err) {
           console.error(err);
         } finally {
@@ -92,13 +94,27 @@ export default function Conversations() {
 
   useEffect(() => {
     if (!currentChannelId) {
-      console.log('hi');
       const getConversations = async () => {
         try {
           const response = await axiosPrivate.get(
             `/channels?currentUserId=${auth.userId}`,
           );
-          setConversations(response.data);
+          const conversationsData = response.data;
+
+          const sortedConversations = conversationsData.sort(
+            (a: ConversationType, b: ConversationType) => {
+              const timestampA = a.latestMessage
+                ? Date.parse(a.latestMessage.timestamp)
+                : 0;
+              const timestampB = b.latestMessage
+                ? Date.parse(b.latestMessage.timestamp)
+                : 0;
+
+              return timestampB - timestampA;
+            },
+          );
+
+          setConversations(sortedConversations);
         } catch (err) {
           console.error(err);
         }
