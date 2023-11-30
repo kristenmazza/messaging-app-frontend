@@ -9,11 +9,12 @@ import styles from './Chat.module.css';
 import useAuth from '../hooks/useAuth';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { axiosPrivate } from '../api/axios';
 import { useMessengerContext } from '../context/useMessengerContext';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { io } from 'socket.io-client';
 
 type MessageType = {
   _id: string;
@@ -44,26 +45,51 @@ export default function Chat({
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    try {
-      await axiosPrivate.post(`/channels/${currentChannelId}/messages`, {
-        userId: auth.userId,
-        text,
-      });
-      updateConversation();
-      setText('');
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const socket = io(import.meta.env.VITE_BACKEND_URL, {
+    withCredentials: true,
+    extraHeaders: {
+      Authorization: `Bearer ${auth.accessToken}`,
+    },
+  });
 
-  const updateConversation = async () => {
+  const updateConversation = useCallback(async () => {
     try {
       const response = await axiosPrivate.get(
         `/channels/${currentChannelId}/messages`,
       );
       setConversation(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [currentChannelId, setConversation]);
+
+  useEffect(() => {
+    const listener = () => {
+      updateConversation();
+    };
+
+    socket.on('receive-message', listener);
+
+    const cleanup: () => void = () => {
+      socket.off('receive-message', listener);
+    };
+
+    return cleanup;
+  }, [socket, updateConversation]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await axiosPrivate.post(
+        `/channels/${currentChannelId}/messages`,
+        {
+          userId: auth.userId,
+          text,
+        },
+      );
+      updateConversation();
+      socket.emit('send-message', response.data);
+      setText('');
     } catch (err) {
       console.error(err);
     }
@@ -94,7 +120,7 @@ export default function Chat({
             {conversation && conversation.length > 0 ? (
               conversation.map((item: MessageType) => (
                 <div className={styles.row} key={item._id}>
-                  {auth.userId === item.user._id ? (
+                  {auth.userId === item.user?._id ? (
                     <>
                       <div className={`${styles.msg} ${styles.sent}`}>
                         <div className={styles.sentName}>You</div>
