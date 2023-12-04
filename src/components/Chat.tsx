@@ -9,12 +9,18 @@ import styles from './Chat.module.css';
 import useAuth from '../hooks/useAuth';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { axiosPrivate } from '../api/axios';
 import { useMessengerContext } from '../context/useMessengerContext';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 type MessageType = {
   _id: string;
@@ -26,56 +32,57 @@ type MessageType = {
   };
 };
 
+interface ServerToClientEvents {
+  'receive-message': (message: MessageType) => void;
+}
+
+interface ClientToServerEvents {
+  'send-message': (message: MessageType) => void;
+}
+
 export default function Chat({
   conversationLoading,
+  conversation,
+  setConversation,
 }: {
   conversationLoading: boolean;
+  conversation: MessageType[] | [];
+  setConversation: Dispatch<SetStateAction<MessageType[] | []>>;
 }) {
   const { auth } = useAuth();
-  const {
-    currentChannelId,
-    otherName,
-    setIsChannelOpen,
-    conversation,
-    setConversation,
-    setCurrentChannelId,
-  } = useMessengerContext();
+  const { currentChannelId, otherName, setIsChannelOpen, setCurrentChannelId } =
+    useMessengerContext();
   const [text, setText] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
-
-  const socket = io(import.meta.env.VITE_BACKEND_URL, {
-    withCredentials: true,
-    extraHeaders: {
-      Authorization: `Bearer ${auth.accessToken}`,
-    },
-  });
-
-  const updateConversation = useCallback(async () => {
-    try {
-      const response = await axiosPrivate.get(
-        `/channels/${currentChannelId}/messages`,
-      );
-      setConversation(response.data);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [currentChannelId, setConversation]);
+  const [socket, setSocket] = useState<Socket<
+    ServerToClientEvents,
+    ClientToServerEvents
+  > | null>(null);
 
   useEffect(() => {
-    const listener = () => {
-      updateConversation();
+    const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
+      withCredentials: true,
+      extraHeaders: {
+        Authorization: `Bearer ${auth.accessToken}`,
+      },
+    });
+
+    setSocket(newSocket);
+  }, [auth.accessToken]);
+
+  useEffect(() => {
+    const handleReceivedMessage = (message: MessageType) => {
+      setConversation((prev) => [message, ...prev]);
     };
 
-    socket.on('receive-message', listener);
+    socket?.on('receive-message', handleReceivedMessage);
 
-    const cleanup: () => void = () => {
-      socket.off('receive-message', listener);
+    return () => {
+      socket?.off('receive-message', handleReceivedMessage);
     };
-
-    return cleanup;
-  }, [socket, updateConversation]);
+  }, [socket, setConversation]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -87,8 +94,9 @@ export default function Chat({
           text,
         },
       );
-      updateConversation();
-      socket.emit('send-message', response.data);
+
+      socket?.emit('send-message', response.data);
+
       setText('');
     } catch (err) {
       console.error(err);
@@ -97,7 +105,7 @@ export default function Chat({
 
   const handleBackClick = () => {
     setIsChannelOpen(false);
-    setConversation(null);
+    setConversation([]);
     setCurrentChannelId('');
     navigate(from, { replace: true });
   };

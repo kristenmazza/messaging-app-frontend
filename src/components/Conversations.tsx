@@ -29,6 +29,7 @@ export default function Conversations() {
     currentChannelId,
     isChannelOpen,
     conversations,
+    conversation,
     setConversations,
     setConversation,
   } = useMessengerContext();
@@ -36,7 +37,14 @@ export default function Conversations() {
   const { auth } = useAuth();
 
   const renderConversation = () => {
-    return <Chat conversationLoading={conversationLoading} />;
+    return (
+      <Chat
+        key={currentChannelId}
+        conversationLoading={conversationLoading}
+        conversation={conversation}
+        setConversation={setConversation}
+      />
+    );
   };
 
   const renderConversations = () => {
@@ -71,6 +79,7 @@ export default function Conversations() {
   };
 
   useEffect(() => {
+    let isMounted = true;
     if (currentChannelId) {
       const getConversation = async () => {
         try {
@@ -84,10 +93,16 @@ export default function Conversations() {
         } catch (err) {
           console.error(err);
         } finally {
-          setConversationLoading(false);
+          if (isMounted) {
+            setConversationLoading(false);
+          }
         }
       };
       getConversation();
+
+      return () => {
+        isMounted = false;
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentChannelId]);
