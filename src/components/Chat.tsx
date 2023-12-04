@@ -40,9 +40,10 @@ interface ServerToClientEvents {
 }
 
 interface ClientToServerEvents {
-  'send-message': (message: MessageType) => void;
-  'typing-started': () => void;
-  'typing-stopped': () => void;
+  'send-message': (message: MessageType, currentChannelId: string) => void;
+  'typing-started': (currentChannelId: string) => void;
+  'typing-stopped': (currentChannelId: string) => void;
+  'join-room': (currentChannelId: string) => void;
 }
 
 export default function Chat({
@@ -77,6 +78,12 @@ export default function Chat({
 
     setSocket(newSocket);
   }, [auth.accessToken]);
+
+  useEffect(() => {
+    if (currentChannelId && socket) {
+      socket?.emit('join-room', currentChannelId);
+    }
+  }, [currentChannelId, socket]);
 
   useEffect(() => {
     const handleReceivedMessage = (message: MessageType) => {
@@ -115,7 +122,7 @@ export default function Chat({
         },
       );
 
-      socket?.emit('send-message', response.data);
+      socket?.emit('send-message', response.data, currentChannelId);
 
       setText('');
     } catch (err) {
@@ -130,14 +137,14 @@ export default function Chat({
   const handleInput = (e: FormEvent) => {
     const element = e.target as HTMLInputElement;
     setText(element.value);
-    socket?.emit('typing-started');
+    socket?.emit('typing-started', currentChannelId);
 
     if (typingTimeout) {
       clearTimeout(typingTimeout);
     }
 
     const timeoutItem = setTimeout(() => {
-      socket?.emit('typing-stopped');
+      socket?.emit('typing-stopped', currentChannelId);
     }, 200);
 
     setTypingTimeout(timeoutItem);
