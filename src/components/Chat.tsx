@@ -4,6 +4,7 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
+  InputLabel,
 } from '@mui/material';
 import styles from './Chat.module.css';
 import useAuth from '../hooks/useAuth';
@@ -34,10 +35,14 @@ type MessageType = {
 
 interface ServerToClientEvents {
   'receive-message': (message: MessageType) => void;
+  'typing-started-from-server': () => void;
+  'typing-stopped-from-server': () => void;
 }
 
 interface ClientToServerEvents {
   'send-message': (message: MessageType) => void;
+  'typing-started': () => void;
+  'typing-stopped': () => void;
 }
 
 export default function Chat({
@@ -60,6 +65,7 @@ export default function Chat({
     ServerToClientEvents,
     ClientToServerEvents
   > | null>(null);
+  const [typing, setTyping] = useState(false);
 
   useEffect(() => {
     const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
@@ -77,10 +83,24 @@ export default function Chat({
       setConversation((prev) => [message, ...prev]);
     };
 
+    const handleTyping = () => {
+      setTyping(true);
+    };
+
+    const handleTypingStopped = () => {
+      setTyping(false);
+    };
+
     socket?.on('receive-message', handleReceivedMessage);
+
+    socket?.on('typing-started-from-server', handleTyping);
+
+    socket?.on('typing-stopped-from-server', handleTypingStopped);
 
     return () => {
       socket?.off('receive-message', handleReceivedMessage);
+      socket?.off('typing-started-from-server', handleTyping);
+      socket?.off('typing-stopped-from-server', handleTypingStopped);
     };
   }, [socket, setConversation]);
 
@@ -101,6 +121,26 @@ export default function Chat({
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(
+    null,
+  );
+
+  const handleInput = (e: FormEvent) => {
+    const element = e.target as HTMLInputElement;
+    setText(element.value);
+    socket?.emit('typing-started');
+
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
+    const timeoutItem = setTimeout(() => {
+      socket?.emit('typing-stopped');
+    }, 200);
+
+    setTypingTimeout(timeoutItem);
   };
 
   const handleBackClick = () => {
@@ -170,13 +210,18 @@ export default function Chat({
         onSubmit={handleSubmit}
         sx={{ mt: 1 }}
       >
+        {typing && (
+          <InputLabel shrink htmlFor='message-input'>
+            {otherName} is typing...
+          </InputLabel>
+        )}
         <TextField
           className={styles.textField}
           hiddenLabel
           id='filled-hidden-label-normal'
           placeholder='Enter message...'
           variant='outlined'
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => handleInput(e)}
           value={text}
           InputProps={{
             endAdornment: (
