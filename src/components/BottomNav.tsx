@@ -28,7 +28,7 @@ export default function FixedBottomNavigation() {
 
   const handleMessagesClick = () => {
     setIsChannelOpen(false);
-    setConversation(null);
+    setConversation([]);
     setCurrentChannelId('');
     navigate('/');
   };

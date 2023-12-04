@@ -24,7 +24,7 @@ export default function UsersList() {
 
   useEffect(() => {
     setIsChannelOpen(false);
-    setConversation(null);
+    setConversation([]);
     setCurrentChannelId('');
   });
 

@@ -35,6 +35,6 @@ export interface ContextProps {
   setConversations: Dispatch<SetStateAction<ConversationType[] | null>>;
   otherName: string;
   setOtherName: Dispatch<SetStateAction<string>>;
-  conversation: MessageType[] | null;
-  setConversation: Dispatch<SetStateAction<MessageType[] | null>>;
+  conversation: MessageType[] | [];
+  setConversation: Dispatch<SetStateAction<MessageType[] | []>>;
 }

@@ -33,7 +33,7 @@ export default function Account() {
 
   useEffect(() => {
     setIsChannelOpen(false);
-    setConversation(null);
+    setConversation([]);
     setCurrentChannelId('');
   });
 
