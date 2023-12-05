@@ -35,7 +35,7 @@ export default function Account() {
     setIsChannelOpen(false);
     setConversation([]);
     setCurrentChannelId('');
-  }, []);
+  }, [setIsChannelOpen, setConversation, setCurrentChannelId]);
 
   const handleOpenSnackbar = () => {
     setOpenSnackbar(true);
