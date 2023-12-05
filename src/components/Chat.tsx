@@ -123,6 +123,7 @@ export default function Chat({
       );
 
       socket?.emit('send-message', response.data, currentChannelId);
+      setConversation((prev) => [response.data, ...prev]);
 
       setText('');
     } catch (err) {
