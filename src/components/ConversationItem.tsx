@@ -47,9 +47,7 @@ export default function ConversationItem({
     useMessengerContext();
 
   const conversationPartner =
-    auth.displayName === participants[0].displayName
-      ? participants[1]
-      : participants[0];
+    auth.userId === participants[0]._id ? participants[1] : participants[0];
 
   const handleUserClick = async (
     e: React.MouseEvent<HTMLElement, MouseEvent>,

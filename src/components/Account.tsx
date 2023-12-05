@@ -13,7 +13,7 @@ import { useMessengerContext } from '../context/useMessengerContext';
 export default function Account() {
   const navigate = useNavigate();
   const logout = useLogout();
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const [displayName, setDisplayName] = useState(auth.displayName);
   const signOut = async () => {
     await logout();
@@ -62,6 +62,11 @@ export default function Account() {
             withCredentials: true,
           },
         );
+
+        setAuth((prev) => ({
+          ...prev,
+          displayName: displayName,
+        }));
 
         localStorage.setItem('displayName', displayName);
         setUpdatedDisplayName(displayName);
