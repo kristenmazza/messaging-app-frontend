@@ -1,4 +1,5 @@
 import Grid from '@mui/material/Grid';
+import Image from '/images/messaging-app-demo.jpg';
 
 export default function SignImage() {
   return (
@@ -8,7 +9,7 @@ export default function SignImage() {
       sm={4}
       md={7}
       sx={{
-        backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
+        backgroundImage: `url(${Image})`,
         backgroundRepeat: 'no-repeat',
         backgroundColor: (t) =>
           t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
