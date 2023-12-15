@@ -128,11 +128,16 @@ export default function ConversationItem({
               {latestMessage ? (
                 <Typography
                   style={{ pointerEvents: 'none' }}
-                  sx={{ display: 'inline' }}
+                  sx={{
+                    display: '-webkit-box',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: 'vertical',
+                  }}
                   component='span'
                   variant='body2'
                   color='text.primary'
-                  noWrap={true}
                 >
                   {latestMessage.text}
                 </Typography>
