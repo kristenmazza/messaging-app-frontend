@@ -28,7 +28,7 @@
 
 /* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-  width: 16px;
+  width: 10px;
 }
 
 *::-webkit-scrollbar-track {
@@ -38,5 +38,4 @@
 *::-webkit-scrollbar-thumb {
   background-color: #a1c0da;
   border-radius: 10px;
-  border: 3px solid rgb(236, 244, 255);
 }
