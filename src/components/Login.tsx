@@ -19,6 +19,11 @@ import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 
+type FormValuesType = {
+  email: string;
+  password: string;
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Copyright(props: any) {
   return (
@@ -63,16 +68,15 @@ export default function Login() {
     localStorage.setItem('persist', JSON.stringify(persist));
   }, [persist]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
-
+  const handleLoginRequest = async (
+    formData: FormValuesType,
+  ): Promise<void> => {
     try {
       const response = await axiosApi.post(
         '/auth',
         {
-          email,
-          password,
+          email: formData.email,
+          password: formData.password,
         },
         {
           headers: {
@@ -81,7 +85,6 @@ export default function Login() {
           withCredentials: true,
         },
       );
-
       const accessToken = response?.data?.accessToken;
       const displayName = response?.data?.displayName;
       const userId = response?.data?.id;
@@ -90,7 +93,7 @@ export default function Login() {
       localStorage.setItem('email', email);
       localStorage.setItem('userId', userId);
 
-      setAuth({ email, accessToken, displayName, userId });
+      setAuth({ email: formData.email, accessToken, displayName, userId });
 
       setEmail('');
       setPassword('');
@@ -113,6 +116,25 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    event.preventDefault();
+    setLoading(true);
+
+    await handleLoginRequest({ email, password });
+  };
+
+  const handleDemoLogin = async (event: React.MouseEvent): Promise<void> => {
+    event.preventDefault();
+    setLoading(true);
+
+    await handleLoginRequest({
+      email: import.meta.env.VITE_DEMO_USER,
+      password: import.meta.env.VITE_DEMO_PW,
+    });
   };
 
   return (
@@ -187,6 +209,15 @@ export default function Login() {
               sx={{ mt: 3, mb: 2 }}
             >
               {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
+
+            <Button
+              fullWidth
+              variant='contained'
+              onClick={(e) => handleDemoLogin(e)}
+              sx={{ mb: 2 }}
+            >
+              Demo Account Login
             </Button>
             <Grid container>
               <Grid item xs></Grid>
