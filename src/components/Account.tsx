@@ -123,7 +123,7 @@ export default function Account() {
   return (
     <>
       <div className={styles.accountSection}>
-        <Box className={styles.account}>
+        <Box sx={{ width: '100%' }} className={styles.account}>
           <h1 className={styles.alignLeft}>Account Details</h1>
           <div className={styles.userDetails}>
             <AvatarDisplay avatar={avatar as string} />
@@ -132,7 +132,7 @@ export default function Account() {
               <p>{auth.email}</p>
             </div>
           </div>
-          <form
+          {/* <form
             method='post'
             encType='multipart/form-data'
             className={styles.uploadForm}
@@ -145,7 +145,7 @@ export default function Account() {
             <Button className={styles.button} type='submit' variant='contained'>
               Upload
             </Button>
-          </form>
+          </form> */}
 
           <form
             className={styles.formWrapper}
