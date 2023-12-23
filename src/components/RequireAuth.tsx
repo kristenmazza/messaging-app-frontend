@@ -5,9 +5,9 @@ export default function RequireAuth() {
   const { auth } = useAuth();
   const location = useLocation();
 
-  return auth?.accessToken ? (
-    <Outlet />
-  ) : (
-    <Navigate to='/login' state={{ from: location }} replace />
-  );
+  if (!auth?.accessToken) {
+    return <Navigate to='/login' state={{ from: location }} replace />;
+  }
+
+  return <Outlet />;
 }
