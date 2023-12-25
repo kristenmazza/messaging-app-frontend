@@ -18,6 +18,7 @@ import axiosApi from '../api/axios';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import { USER_EMAIL, USER_PW } from '../constants';
 
 type FormValuesType = {
   email: string;
@@ -132,8 +133,8 @@ export default function Login() {
     setLoading(true);
 
     await handleLoginRequest({
-      email: import.meta.env.VITE_DEMO_USER,
-      password: import.meta.env.VITE_DEMO_PW,
+      email: USER_EMAIL,
+      password: USER_PW,
     });
   };
 
