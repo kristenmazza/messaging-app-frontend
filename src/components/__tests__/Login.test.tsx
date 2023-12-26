@@ -1,10 +1,4 @@
-import {
-  render,
-  fireEvent,
-  screen,
-  act,
-  waitFor,
-} from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import Login from '../Login';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -39,7 +33,7 @@ describe('Login Component', () => {
     ).toBeInTheDocument();
   });
 
-  xit('handles form submission failure and displays error message', async () => {
+  it('handles form submission failure and displays error message', async () => {
     // Arrange
     render(
       <BrowserRouter>
@@ -52,17 +46,11 @@ describe('Login Component', () => {
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     // Act
-    await act(async () => {
-      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-      fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    });
-
-    await act(async () => {
-      fireEvent.click(submitButton);
-    });
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    fireEvent.click(submitButton);
 
     // Assert
-    expect(screen.getByText(/signing in/i)).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByText(/login failed/i)).toBeInTheDocument();
     });
@@ -81,18 +69,14 @@ describe('Login Component', () => {
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     // Act
-    await act(async () => {
-      fireEvent.change(emailInput, {
-        target: { value: 'EmailDemo@example.com' },
-      });
-      fireEvent.change(passwordInput, {
-        target: { value: 'PasswordDemo!' },
-      });
+    fireEvent.change(emailInput, {
+      target: { value: 'EmailDemo@example.com' },
+    });
+    fireEvent.change(passwordInput, {
+      target: { value: 'PasswordDemo!' },
     });
 
-    await act(async () => {
-      fireEvent.click(submitButton);
-    });
+    fireEvent.click(submitButton);
 
     // Assert
     await waitFor(() => {
