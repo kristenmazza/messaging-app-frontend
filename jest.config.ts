@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   collectCoverage: true,
-  collectCoverageFrom: ['src/**/*.{js, jsx, ts, tsx}'],
+  collectCoverageFrom: ['**/*.tsx', '!**/node_modules/**'],
   coverageDirectory: 'test-coverage',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTest.ts'],
