@@ -22,6 +22,7 @@ import { useMessengerContext } from '../context/useMessengerContext';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
+import { BASE_URL } from '../constants.ts';
 
 type MessageType = {
   _id: string;
@@ -69,7 +70,7 @@ export default function Chat({
   const [typing, setTyping] = useState(false);
 
   useEffect(() => {
-    const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
+    const newSocket = io(BASE_URL, {
       withCredentials: true,
       extraHeaders: {
         Authorization: `Bearer ${auth.accessToken}`,
